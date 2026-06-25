@@ -1,0 +1,36 @@
+# User-specific files — never commit these
+config.yaml
+resume.txt
+
+# Runtime data
+data/
+
+# Claude Code IDE files
+.claude/
+CLAUDE.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

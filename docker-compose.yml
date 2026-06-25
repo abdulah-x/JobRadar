@@ -1,0 +1,13 @@
+name: job-radar
+
+services:
+  job-radar:
+    build: .
+    container_name: job-radar
+    restart: unless-stopped
+    volumes:
+      - ./resume.txt:/app/resume.txt:ro
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
