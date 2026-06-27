@@ -226,9 +226,15 @@ def main() -> None:
     Path(data_dir).mkdir(exist_ok=True)
 
     gemini_key = config["scoring"]["gemini_api_key"]
-    if gemini_key == "YOUR_GEMINI_API_KEY":
-        logger.error("Set your Gemini API key in config.yaml before running.")
+    if not gemini_key or not gemini_key.strip() or gemini_key == "YOUR_GEMINI_API_KEY":
+        logger.error("GEMINI_API_KEY is missing or not set — cannot start.")
         sys.exit(1)
+
+    email_cfg = config.get("email", {})
+    for field in ("sender", "app_password", "recipient"):
+        if not email_cfg.get(field, "").strip():
+            logger.error("Email config missing '%s' — set it before running.", field)
+            sys.exit(1)
 
     store = JobStore(data_dir)
     resume_processor = ResumeProcessor("resume.txt", data_dir, gemini_key)
