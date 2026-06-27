@@ -14,10 +14,17 @@ if [ ! -f /app/resume.txt ]; then
         exit 1
     fi
     echo "[entrypoint] Decoding resume from RESUME_B64..."
-    if ! echo "$RESUME_B64" | base64 -d > /app/resume.txt 2>/dev/null; then
+    if ! python3 -c "
+import base64, os, sys
+val = os.environ.get('RESUME_B64', '')
+try:
+    data = base64.b64decode(val)
+    open('/app/resume.txt', 'wb').write(data)
+except Exception as e:
+    print('[entrypoint] ERROR: RESUME_B64 decode failed:', e)
+    sys.exit(1)
+"; then
         rm -f /app/resume.txt
-        echo "[entrypoint] ERROR: RESUME_B64 is not valid base64. Re-generate it without line breaks."
-        echo "[entrypoint] PowerShell: [Convert]::ToBase64String([IO.File]::ReadAllBytes('resume.txt'))"
         exit 1
     fi
 fi
