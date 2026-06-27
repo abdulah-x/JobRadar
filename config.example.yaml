@@ -54,6 +54,26 @@ filters:
     - research engineer
     - backend engineer
     - software engineer
+    # Entry-level role titles
+    - entry level analyst
+    - trainee
+    - associate analyst
+    - junior specialist
+    - coordinator
+    - intern to hire
+    - graduate program
+    - management trainee
+    - apprenticeship
+    - rotational program
+    # Entry-level search phrases
+    - "entry level"
+    - "fresh graduate"
+    - "graduate trainee"
+    - "no experience required"
+    - "new grad"
+    - "campus hire"
+    - junior
+    - associate
   exclude_keywords:
     - 10+ years
     - 7+ years
