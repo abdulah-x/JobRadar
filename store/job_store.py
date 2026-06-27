@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     company TEXT NOT NULL,
     url TEXT NOT NULL,
     source TEXT NOT NULL,
+    posted_at TEXT,
     semantic_score REAL,
     llm_score INTEGER,
     matching_skills TEXT,
@@ -30,6 +31,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     salary_ok INTEGER,
     requires_visa INTEGER,
     notified INTEGER DEFAULT 0,
+    notified_at TEXT,
     seen_at TEXT NOT NULL
 );
 """
@@ -40,6 +42,8 @@ _MIGRATIONS = [
     ("location_ok", "INTEGER"),
     ("salary_ok", "INTEGER"),
     ("requires_visa", "INTEGER"),
+    ("posted_at", "TEXT"),
+    ("notified_at", "TEXT"),
 ]
 
 
@@ -105,17 +109,18 @@ class JobStore:
         with self._connect() as conn:
             conn.execute(
                 """INSERT OR IGNORE INTO jobs
-                   (id, title, company, url, source, semantic_score, llm_score,
+                   (id, title, company, url, source, posted_at, semantic_score, llm_score,
                     matching_skills, missing_skills, reason, seniority_match,
                     seniority_level, location_ok, salary_ok, requires_visa,
                     notified, seen_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     job.id,
                     job.title,
                     job.company,
                     job.url,
                     job.source,
+                    job.posted_at or None,
                     semantic_score,
                     llm_score,
                     json.dumps(matching_skills or []),
@@ -135,15 +140,16 @@ class JobStore:
         today = datetime.now(_PKT).date().isoformat()
         with self._connect() as conn:
             return conn.execute(
-                "SELECT COUNT(*) FROM jobs WHERE notified = 1 AND seen_at LIKE ?",
+                "SELECT COUNT(*) FROM jobs WHERE notified = 1 AND notified_at LIKE ?",
                 (f"{today}%",),
             ).fetchone()[0]
 
     def mark_notified(self, job_ids: list[str]) -> None:
+        now = datetime.now(_PKT).isoformat()
         with self._connect() as conn:
             conn.executemany(
-                "UPDATE jobs SET notified = 1 WHERE id = ?",
-                [(jid,) for jid in job_ids],
+                "UPDATE jobs SET notified = 1, notified_at = ? WHERE id = ?",
+                [(now, jid) for jid in job_ids],
             )
 
     def stats(self) -> dict:
