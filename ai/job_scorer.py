@@ -159,10 +159,11 @@ class JobScorer:
                 model="llama-3.3-70b-versatile",
                 messages=[
                     {"role": "system", "content": "You are a job-resume matching assistant. Respond with valid JSON only."},
-                    {"role": "user", "content": prompt},
+                    {"role": "user", "content": prompt[:6000]},
                 ],
                 response_format={"type": "json_object"},
                 temperature=0.1,
+                max_tokens=800,
             )
             result = ScoringResult.model_validate_json(response.choices[0].message.content)
             logger.info("Groq fallback succeeded for '%s'", title)
