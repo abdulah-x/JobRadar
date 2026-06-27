@@ -120,7 +120,12 @@ class JobScorer:
                             },
                         ),
                     )
-                return ScoringResult.model_validate_json(response.text)
+                raw = response.text
+                try:
+                    return ScoringResult.model_validate_json(raw)
+                except Exception as parse_err:
+                    logger.warning("Gemini JSON parse failed for '%s': %s | raw: %.300s", title, parse_err, raw)
+                    raise
             except Exception as e:
                 err_str = str(e)
                 is_rate_limit = "429" in err_str or "RESOURCE_EXHAUSTED" in err_str
