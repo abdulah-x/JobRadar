@@ -53,7 +53,10 @@ class ResumeProcessor:
                 "Place your resume as plain text in that file before starting."
             )
 
-        resume_text = self.resume_path.read_text(encoding="utf-8")
+        try:
+            resume_text = self.resume_path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            resume_text = self.resume_path.read_text(encoding="latin-1")
         logger.info("Building resume index from %s", self.resume_path)
 
         chunks = self._chunk_resume(resume_text)

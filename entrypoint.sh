@@ -14,7 +14,12 @@ if [ ! -f /app/resume.txt ]; then
         exit 1
     fi
     echo "[entrypoint] Decoding resume from RESUME_B64..."
-    echo "$RESUME_B64" | base64 -d > /app/resume.txt
+    if ! echo "$RESUME_B64" | base64 -d > /app/resume.txt 2>/dev/null; then
+        rm -f /app/resume.txt
+        echo "[entrypoint] ERROR: RESUME_B64 is not valid base64. Re-generate it without line breaks."
+        echo "[entrypoint] PowerShell: [Convert]::ToBase64String([IO.File]::ReadAllBytes('resume.txt'))"
+        exit 1
+    fi
 fi
 
 exec python main.py
