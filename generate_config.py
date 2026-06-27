@@ -1,6 +1,27 @@
-schedule:
-  remote_minutes: 30    # WeWorkRemotely, RemoteOK, Remote.co, Remotive
-  jobspy_hours: 3       # Indeed (via JobSpy)
+"""
+Generates config.yaml from environment variables.
+Used by entrypoint.sh when deploying to cloud (Railway, Fly.io, etc.)
+where config.yaml cannot be volume-mounted.
+
+Required env vars:
+  GEMINI_API_KEY, EMAIL_SENDER, EMAIL_APP_PASSWORD, EMAIL_RECIPIENT
+
+Optional env vars (have sensible defaults):
+  GROQ_API_KEY, GITHUB_USERNAME, GITHUB_TOKEN,
+  LLM_THRESHOLD, SEMANTIC_THRESHOLD, DAILY_JOB_LIMIT
+"""
+import os
+import sys
+
+required = ["GEMINI_API_KEY", "EMAIL_SENDER", "EMAIL_APP_PASSWORD", "EMAIL_RECIPIENT"]
+missing = [v for v in required if not os.environ.get(v)]
+if missing:
+    print(f"[generate_config] ERROR: Missing required env vars: {', '.join(missing)}")
+    sys.exit(1)
+
+config = f"""schedule:
+  remote_minutes: 30
+  jobspy_hours: 3
 
 filters:
   keywords:
@@ -27,7 +48,7 @@ filters:
     - AI researcher
     - applied scientist
     - AI scientist
-    # AI/ML techniques — catch roles titled by method, not "AI/ML"
+    # AI/ML techniques
     - RAG
     - fine-tuning
     - fine tuning
@@ -41,14 +62,14 @@ filters:
     - foundation model
     - inference engineer
     - embedding
-    # Data engineering — often overlaps with ML pipelines
+    # Data engineering
     - analytics engineer
     - data pipeline
     - ETL
     - Spark
     - dbt
     - Kafka
-    # Software roles common in AI product companies on remote boards
+    # Software roles in AI companies
     - Python engineer
     - Python developer
     - research engineer
@@ -64,6 +85,9 @@ filters:
     - director
     - senior engineer
     - lead engineer
+    - "senior data"
+    - "senior ML"
+    - "senior machine"
     - "senior Python"
     - "senior backend"
     - "senior software"
@@ -72,41 +96,34 @@ filters:
     - "lead Python"
     - "lead backend"
     - "lead software"
-  # Accepted locations for on-site roles. Remote jobs are also accepted if they
-  # don't require work authorization outside your country.
   locations:
     - Lahore
     - Islamabad
-  # Salary minimums — jobs that specify a salary below these are skipped.
-  # Jobs with no salary info get benefit of the doubt (salary_ok = true).
   salary:
-    min_pkr: 75000     # adjust or remove if you're not in Pakistan
+    min_pkr: 75000
     min_usd: 600
-  # Only these seniority levels will be notified.
   seniority_allowed:
     - entry
     - associate
     - intern
 
-# Optional: index your public GitHub repos into the resume vector store
-# so the AI considers your projects when scoring jobs.
 github:
-  username: "YOUR_GITHUB_USERNAME"   # e.g. "johndoe" — leave blank to disable
-  token: ""           # optional PAT for higher rate limits (5000 req/hr vs 60)
-  max_repos: 20       # fetch this many most-recently-updated public repos
+  username: "{os.environ.get('GITHUB_USERNAME', '')}"
+  token: "{os.environ.get('GITHUB_TOKEN', '')}"
+  max_repos: 20
   include_readme: true
 
 scoring:
-  semantic_threshold: 0.60    # Stage 1 cutoff — jobs below this skip LLM scoring
-  llm_threshold: 80           # Stage 2 cutoff — jobs below this are not emailed
-  daily_job_limit: 20         # max jobs emailed per calendar day
-  gemini_api_key: "YOUR_GEMINI_API_KEY"
-  groq_api_key: "YOUR_GROQ_API_KEY"   # optional fallback when Gemini hits rate limits
+  semantic_threshold: {os.environ.get('SEMANTIC_THRESHOLD', '0.60')}
+  llm_threshold: {os.environ.get('LLM_THRESHOLD', '80')}
+  daily_job_limit: {os.environ.get('DAILY_JOB_LIMIT', '20')}
+  gemini_api_key: "{os.environ.get('GEMINI_API_KEY')}"
+  groq_api_key: "{os.environ.get('GROQ_API_KEY', '')}"
 
 email:
-  sender: "your.email@gmail.com"
-  app_password: "xxxx xxxx xxxx xxxx"   # Gmail App Password (not your main password)
-  recipient: "your.email@gmail.com"     # where to receive job digests
+  sender: "{os.environ.get('EMAIL_SENDER')}"
+  app_password: "{os.environ.get('EMAIL_APP_PASSWORD')}"
+  recipient: "{os.environ.get('EMAIL_RECIPIENT')}"
 
 sources:
   jobspy:
@@ -132,3 +149,9 @@ sources:
     limit_per_category: 50
   workatastartup:
     enabled: true
+"""
+
+with open("/app/config.yaml", "w", encoding="utf-8") as f:
+    f.write(config)
+
+print("[generate_config] config.yaml written successfully.")
