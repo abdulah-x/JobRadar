@@ -165,7 +165,8 @@ def _job_card(index: int, job: JobResult) -> str:
         {visa_pill}
       </td>
       <td style="vertical-align:middle;padding:0 0 0 14px;text-align:right;white-space:nowrap;">
-        <a href="{job.url}" style="display:inline-block;padding:8px 22px;background:#1d4ed8;color:#e0e7ff;
+        <a href="{job.url}" target="_blank" rel="noopener noreferrer"
+           style="display:inline-block;padding:8px 22px;background:#1d4ed8;color:#e0e7ff;
            border-radius:7px;text-decoration:none;font-size:13px;font-weight:600;
            font-family:{FONT};letter-spacing:0.02em;">
           Apply &nbsp;&#8594;
