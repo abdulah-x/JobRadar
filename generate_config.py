@@ -126,6 +126,7 @@ filters:
     - entry
     - associate
     - intern
+    - unknown
 
 github:
   username: "{os.environ.get('GITHUB_USERNAME', '')}"

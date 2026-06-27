@@ -107,6 +107,7 @@ filters:
     - entry
     - associate
     - intern
+    - unknown
 
 # Optional: index your public GitHub repos into the resume vector store
 # so the AI considers your projects when scoring jobs.
