@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 WWR_FEEDS = [
     "https://weworkremotely.com/categories/remote-programming-jobs.rss",
     "https://weworkremotely.com/categories/remote-data-science-jobs.rss",
+    "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss",
 ]
 
 
