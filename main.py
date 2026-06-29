@@ -41,7 +41,8 @@ def run_pipeline(
     gh_processor: "GitHubProcessor | None" = None,
     include_jobspy: bool = True,
 ) -> None:
-    logger.info("=== Pipeline run starting ===")
+    stats = store.stats()
+    logger.info("=== Pipeline run starting === (DB: %d seen, %d notified)", stats["total_seen"], stats["total_notified"])
 
     filters = config.get("filters", {})
     keywords = filters.get("keywords", [])
