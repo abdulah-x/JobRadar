@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 REMOTECO_FEEDS = [
     "https://remote.co/remote-jobs/developer/feed/",
     "https://remote.co/remote-jobs/data-science/feed/",
+    "https://remote.co/remote-jobs/devops-sysadmin/feed/",
+    "https://remote.co/remote-jobs/machine-learning/feed/",
 ]
 
 
