@@ -202,8 +202,8 @@ def run_pipeline(
             results = [jr for _, jr in to_send]
 
             notifier = EmailNotifier(
+                api_key=email_cfg["resend_api_key"],
                 sender=email_cfg["sender"],
-                app_password=email_cfg["app_password"],
                 recipient=email_cfg["recipient"],
             )
             if notifier.send(results, sent_before=sent_today, daily_limit=daily_limit):
@@ -231,7 +231,7 @@ def main() -> None:
         sys.exit(1)
 
     email_cfg = config.get("email", {})
-    for field in ("sender", "app_password", "recipient"):
+    for field in ("sender", "resend_api_key", "recipient"):
         if not email_cfg.get(field, "").strip():
             logger.error("Email config missing '%s' — set it before running.", field)
             sys.exit(1)

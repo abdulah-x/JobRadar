@@ -125,9 +125,9 @@ scoring:
   groq_api_key: "YOUR_GROQ_API_KEY"   # optional fallback when Gemini hits rate limits
 
 email:
-  sender: "your.email@gmail.com"
-  app_password: "xxxx xxxx xxxx xxxx"   # Gmail App Password (not your main password)
-  recipient: "your.email@gmail.com"     # where to receive job digests
+  sender: "Job Radar <you@yourdomain.com>"   # must be from a Resend-verified domain
+  resend_api_key: "re_..."                   # get from resend.com (free tier: 100/day)
+  recipient: "your.email@gmail.com"          # where to receive job digests
 
 sources:
   jobspy:

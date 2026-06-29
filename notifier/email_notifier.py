@@ -1,10 +1,7 @@
 import logging
-import smtplib
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 logger = logging.getLogger(__name__)
 
@@ -226,35 +223,35 @@ def _build_html(jobs: list[JobResult], sent_before: int = 0, daily_limit: int = 
 
 
 class EmailNotifier:
-    def __init__(self, sender: str, app_password: str, recipient: str):
+    def __init__(self, api_key: str, sender: str, recipient: str):
+        self.api_key = api_key
         self.sender = sender
-        self.app_password = app_password
         self.recipient = recipient
 
     def send(self, jobs: list[JobResult], sent_before: int = 0, daily_limit: int = 20) -> bool:
         if not jobs:
             return False
 
+        import resend
+        resend.api_key = self.api_key
+
         sent_after = sent_before + len(jobs)
         subject = f"Job Radar: {len(jobs)} new — {sent_after}/{daily_limit} today"
         html = _build_html(jobs, sent_before=sent_before, daily_limit=daily_limit)
 
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = self.sender
-        msg["To"] = self.recipient
-        msg.attach(MIMEText(html, "html"))
-
         for attempt in range(3):
             try:
-                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-                    smtp.login(self.sender, self.app_password)
-                    smtp.sendmail(self.sender, self.recipient, msg.as_string())
+                resend.Emails.send({
+                    "from": self.sender,
+                    "to": [self.recipient],
+                    "subject": subject,
+                    "html": html,
+                })
                 logger.info("Email sent: %d jobs to %s", len(jobs), self.recipient)
                 return True
             except Exception as e:
                 if attempt < 2:
-                    wait = 5 * (2 ** attempt)  # 5s, 10s
+                    wait = 5 * (2 ** attempt)
                     logger.warning("Email send failed (attempt %d/3): %s — retrying in %ds", attempt + 1, e, wait)
                     time.sleep(wait)
                 else:

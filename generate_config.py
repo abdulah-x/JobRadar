@@ -4,7 +4,7 @@ Used by entrypoint.sh when deploying to cloud (Railway, Fly.io, etc.)
 where config.yaml cannot be volume-mounted.
 
 Required env vars:
-  GEMINI_API_KEY, EMAIL_SENDER, EMAIL_APP_PASSWORD, EMAIL_RECIPIENT
+  GEMINI_API_KEY, EMAIL_SENDER, RESEND_API_KEY, EMAIL_RECIPIENT
 
 Optional env vars (have sensible defaults):
   GROQ_API_KEY, GITHUB_USERNAME, GITHUB_TOKEN,
@@ -13,7 +13,7 @@ Optional env vars (have sensible defaults):
 import os
 import sys
 
-required = ["GEMINI_API_KEY", "EMAIL_SENDER", "EMAIL_APP_PASSWORD", "EMAIL_RECIPIENT"]
+required = ["GEMINI_API_KEY", "EMAIL_SENDER", "RESEND_API_KEY", "EMAIL_RECIPIENT"]
 missing = [v for v in required if not os.environ.get(v)]
 if missing:
     print(f"[generate_config] ERROR: Missing required env vars: {', '.join(missing)}")
@@ -143,7 +143,7 @@ scoring:
 
 email:
   sender: "{os.environ.get('EMAIL_SENDER')}"
-  app_password: "{os.environ.get('EMAIL_APP_PASSWORD')}"
+  resend_api_key: "{os.environ.get('RESEND_API_KEY')}"
   recipient: "{os.environ.get('EMAIL_RECIPIENT')}"
 
 sources:
