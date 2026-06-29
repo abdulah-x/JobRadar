@@ -146,10 +146,17 @@ def run_pipeline(
             logger.warning("  Scoring failed for '%s' @ %s — will retry next run", job.title, job.company)
             continue
 
-        # Hard gates — these override the llm_threshold
-        hard_fail_reasons = []
+        # Seniority gate — discard mid/senior without storing score data
         if result.seniority_level not in seniority_allowed:
-            hard_fail_reasons.append(f"seniority={result.seniority_level}")
+            logger.info(
+                "  Seniority discard: %s @ %s — level=%s",
+                job.title, job.company, result.seniority_level,
+            )
+            store.save_filtered(job, sim_score)
+            continue
+
+        # Other hard gates (location / salary / visa)
+        hard_fail_reasons = []
         if not result.location_ok:
             hard_fail_reasons.append("location not Lahore/Islamabad/valid-remote")
         if not result.salary_ok:
