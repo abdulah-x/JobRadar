@@ -1,3 +1,4 @@
+import html as _html
 import logging
 import time
 from dataclasses import dataclass
@@ -76,11 +77,11 @@ def _job_card(index: int, job: JobResult) -> str:
     seniority_pill = _pill(job.seniority_level.capitalize(), fg, bg, bold=True)
 
     matching_pills = "".join(
-        _pill(f"&#10003;&nbsp;{s}", "#4ade80", "#0d2818") for s in job.matching_skills
+        _pill(f"&#10003;&nbsp;{_html.escape(s)}", "#4ade80", "#0d2818") for s in job.matching_skills
     ) if job.matching_skills else f'<span style="color:{TEXT_MUTED};font-size:13px;font-family:{FONT};">—</span>'
 
     missing_pills = "".join(
-        _pill(f"&times;&nbsp;{s}", "#f87171", "#2d0a0a") for s in job.missing_skills
+        _pill(f"&times;&nbsp;{_html.escape(s)}", "#f87171", "#2d0a0a") for s in job.missing_skills
     ) if job.missing_skills else f'<span style="color:{TEXT_MUTED};font-size:13px;font-family:{FONT};">None</span>'
 
     loc_text  = "Remote / PK" if job.location_ok else "Location mismatch"
@@ -93,11 +94,14 @@ def _job_card(index: int, job: JobResult) -> str:
 
     visa_pill = _pill("Visa required", "#f87171", "#2d0a0a") if job.requires_visa else ""
 
-    src = job.source.replace("-", " ").title()
-    company = (
+    src = _html.escape(job.source.replace("-", " ").title())
+    company = _html.escape(
         job.company if job.company and job.company.lower() not in ("nan", "none", "")
         else "Company undisclosed"
     )
+    title = _html.escape(job.title)
+    reason = _html.escape(job.reason)
+    safe_url = job.url if job.url.startswith(("https://", "http://")) else "#"
 
     return f"""
 <div style="background:{BG_CARD};border:1px solid {BORDER};border-radius:12px;margin-bottom:20px;overflow:hidden;">
@@ -108,7 +112,7 @@ def _job_card(index: int, job: JobResult) -> str:
       <div style="font-size:11px;font-weight:600;color:{TEXT_MUTED};letter-spacing:0.09em;text-transform:uppercase;margin-bottom:6px;font-family:{FONT};">
         #{index} &nbsp;&middot;&nbsp; {src}
       </div>
-      <div style="font-size:18px;font-weight:700;color:{TEXT_PRI};line-height:1.3;font-family:{FONT};margin-bottom:3px;">{job.title}</div>
+      <div style="font-size:18px;font-weight:700;color:{TEXT_PRI};line-height:1.3;font-family:{FONT};margin-bottom:3px;">{title}</div>
       <div style="font-size:13px;color:{TEXT_MUTED};font-family:{FONT};">{company}</div>
     </td>
     <td style="vertical-align:middle;padding:20px 20px 16px 8px;text-align:right;width:80px;">
@@ -124,7 +128,7 @@ def _job_card(index: int, job: JobResult) -> str:
   <!-- Reason -->
   <div style="padding:0 20px 16px 20px;">
     <p style="margin:0;font-size:14px;font-weight:400;color:{TEXT_SEC};line-height:1.65;font-family:{FONT};font-style:italic;">
-      &ldquo;{job.reason}&rdquo;
+      &ldquo;{reason}&rdquo;
     </p>
   </div>
 
@@ -162,7 +166,7 @@ def _job_card(index: int, job: JobResult) -> str:
         {visa_pill}
       </td>
       <td style="vertical-align:middle;padding:0 0 0 14px;text-align:right;white-space:nowrap;">
-        <a href="{job.url}" target="_blank" rel="noopener noreferrer"
+        <a href="{safe_url}" target="_blank" rel="noopener noreferrer"
            style="display:inline-block;padding:8px 22px;background:#1d4ed8;color:#e0e7ff;
            border-radius:7px;text-decoration:none;font-size:13px;font-weight:600;
            font-family:{FONT};letter-spacing:0.02em;">
