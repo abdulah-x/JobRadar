@@ -84,7 +84,7 @@ class JobScorer:
             resume_chunks=resume_chunks,
             title=title,
             company=company,
-            job_description=job_description[:2500],
+            job_description=job_description[:3500],
         )
 
         for attempt in range(3):
