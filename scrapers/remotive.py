@@ -1,4 +1,5 @@
 import logging
+import re
 import requests
 from .base import BaseScraper, Job
 from .utils import get_random_ua, random_delay
@@ -36,6 +37,8 @@ class RemotiveScraper(BaseScraper):
                         continue
                     tags = ", ".join(item.get("tags", []))
                     description = item.get("description", "") or ""
+                    description = re.sub(r"<[^>]+>", " ", description)
+                    description = re.sub(r"\s+", " ", description).strip()
                     jobs.append(Job(
                         title=item.get("title", "Unknown"),
                         company=item.get("company_name", "Unknown"),
