@@ -16,12 +16,16 @@ COLLECTION_NAME = "resume_chunks"
 HASH_FILE = "resume_hash.txt"
 
 
+_DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
+
+
 class ResumeProcessor:
-    def __init__(self, resume_path: str, data_dir: str, gemini_api_key: str):
+    def __init__(self, resume_path: str, data_dir: str, gemini_api_key: str, gemini_model: str = _DEFAULT_GEMINI_MODEL):
         self.resume_path = Path(resume_path)
         self.data_dir = Path(data_dir)
         self.profile_path = self.data_dir / "profile.json"
         self.hash_path = self.data_dir / HASH_FILE
+        self._gemini_model = gemini_model
 
         self._genai = genai.Client(api_key=gemini_api_key)
         self._client = chromadb.PersistentClient(path=str(self.data_dir / "chroma"))
@@ -134,7 +138,7 @@ RESUME:
         for attempt in range(3):
             try:
                 response = self._genai.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model=self._gemini_model,
                     contents=prompt,
                 )
                 raw = response.text.strip()

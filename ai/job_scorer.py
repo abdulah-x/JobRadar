@@ -61,6 +61,7 @@ requires_visa: True if the job says anything like "must be authorized to work in
 
 
 _DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
+_DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 
 
 class JobScorer:
@@ -70,10 +71,12 @@ class JobScorer:
         profile: ProfileSummary,
         groq_api_key: str = "",
         groq_model: str = _DEFAULT_GROQ_MODEL,
+        gemini_model: str = _DEFAULT_GEMINI_MODEL,
     ):
         self.processor = resume_processor
         self.profile = profile
         self._client = resume_processor.get_genai_client()
+        self._gemini_model = gemini_model
         self._groq = None
         self._groq_model = groq_model
         if groq_api_key and groq_api_key != "YOUR_GROQ_API_KEY":
@@ -102,7 +105,7 @@ class JobScorer:
                 with _gemini_lock:
                     time.sleep(15)  # pace to 5 RPM; lock held across sleep + call so threads queue up
                     response = self._client.models.generate_content(
-                        model="gemini-2.5-flash",
+                        model=self._gemini_model,
                         contents=prompt,
                         config=types.GenerateContentConfig(
                             response_mime_type="application/json",

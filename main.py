@@ -73,6 +73,7 @@ def run_pipeline(
         profile,
         groq_api_key=scoring_cfg.get("groq_api_key", ""),
         groq_model=scoring_cfg.get("groq_model", "llama-3.3-70b-versatile"),
+        gemini_model=scoring_cfg.get("gemini_model", "gemini-2.5-flash"),
     )
 
     scrapers = [
@@ -260,7 +261,8 @@ def main() -> None:
             sys.exit(1)
 
     store = JobStore(data_dir)
-    resume_processor = ResumeProcessor("resume.txt", data_dir, gemini_key)
+    gemini_model = config.get("scoring", {}).get("gemini_model", "gemini-2.5-flash")
+    resume_processor = ResumeProcessor("resume.txt", data_dir, gemini_key, gemini_model=gemini_model)
 
     # build resume index on first run
     if resume_processor.needs_rebuild():
