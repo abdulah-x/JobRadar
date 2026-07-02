@@ -1,4 +1,5 @@
 import logging
+import re
 import feedparser
 import requests
 from .base import BaseScraper, Job
@@ -34,6 +35,8 @@ class WeWorkRemotelyScraper(BaseScraper):
                     title = entry.get("title", "")
                     content_list = entry.get("content") or [{}]
                     description = entry.get("summary", "") or content_list[0].get("value", "")
+                    description = re.sub(r"<[^>]+>", " ", description)
+                    description = re.sub(r"\s+", " ", description).strip()
                     company = entry.get("author", "Unknown")
                     published = entry.get("published", "")
                     jobs.append(Job(
