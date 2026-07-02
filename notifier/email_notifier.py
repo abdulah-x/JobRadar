@@ -36,6 +36,7 @@ class JobResult:
     location_ok: bool = True
     salary_ok: bool = True
     requires_visa: bool = False
+    posted_at: str = ""
 
 
 def _score_color(score: int) -> str:
@@ -114,6 +115,14 @@ def _job_card(index: int, job: JobResult) -> str:
     visa_pill = _pill("Visa required", "#f87171", "#2d0a0a") if job.requires_visa else ""
 
     src = _html.escape(_source_label(job.source))
+    posted = ""
+    if job.posted_at:
+        try:
+            from email.utils import parsedate_to_datetime
+            dt = parsedate_to_datetime(job.posted_at)
+            posted = dt.strftime("%b %d")
+        except Exception:
+            posted = str(job.posted_at)[:10]
     company = _html.escape(
         job.company if job.company and job.company.lower() not in ("nan", "none", "")
         else "Company undisclosed"
@@ -129,7 +138,7 @@ def _job_card(index: int, job: JobResult) -> str:
   <table style="width:100%;border-collapse:collapse;"><tr>
     <td style="padding:20px 16px 16px 20px;vertical-align:top;">
       <div style="font-size:11px;font-weight:600;color:{TEXT_MUTED};letter-spacing:0.09em;text-transform:uppercase;margin-bottom:6px;font-family:{FONT};">
-        #{index} &nbsp;&middot;&nbsp; {src}
+        #{index} &nbsp;&middot;&nbsp; {src}{f" &nbsp;&middot;&nbsp; {_html.escape(posted)}" if posted else ""}
       </div>
       <div style="font-size:18px;font-weight:700;color:{TEXT_PRI};line-height:1.3;font-family:{FONT};margin-bottom:3px;">{title}</div>
       <div style="font-size:13px;color:{TEXT_MUTED};font-family:{FONT};">{company}</div>

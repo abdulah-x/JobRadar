@@ -204,6 +204,7 @@ def run_pipeline(
                 location_ok=result.location_ok,
                 salary_ok=result.salary_ok,
                 requires_visa=result.requires_visa,
+                posted_at=job.posted_at or "",
             )))
 
     logger.info("Qualified jobs (≥%d): %d", llm_threshold, len(qualified))
