@@ -40,7 +40,7 @@ class RemotiveScraper(BaseScraper):
                     description = re.sub(r"<[^>]+>", " ", description)
                     description = re.sub(r"\s+", " ", description).strip()
                     jobs.append(Job(
-                        title=item.get("title", "Unknown"),
+                        title=item.get("title", "") or "Unknown",
                         company=item.get("company_name", "Unknown"),
                         url=url,
                         description=f"{description}\n\nTags: {tags}",

@@ -32,7 +32,7 @@ class WeWorkRemotelyScraper(BaseScraper):
                     url = entry.get("link", "").strip()
                     if not url:
                         continue
-                    title = entry.get("title", "")
+                    title = entry.get("title", "") or "Unknown"
                     content_list = entry.get("content") or [{}]
                     description = entry.get("summary", "") or content_list[0].get("value", "")
                     description = re.sub(r"<[^>]+>", " ", description)
