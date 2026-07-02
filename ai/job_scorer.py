@@ -60,17 +60,27 @@ salary_ok: True unless the job explicitly states a salary that is below PKR 75,0
 requires_visa: True if the job says anything like "must be authorized to work in [country]", "visa sponsorship not provided", "EU work permit required", "must be US-based", etc. False otherwise."""
 
 
+_DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
+
+
 class JobScorer:
-    def __init__(self, resume_processor: ResumeProcessor, profile: ProfileSummary, groq_api_key: str = ""):
+    def __init__(
+        self,
+        resume_processor: ResumeProcessor,
+        profile: ProfileSummary,
+        groq_api_key: str = "",
+        groq_model: str = _DEFAULT_GROQ_MODEL,
+    ):
         self.processor = resume_processor
         self.profile = profile
         self._client = resume_processor.get_genai_client()
         self._groq = None
+        self._groq_model = groq_model
         if groq_api_key and groq_api_key != "YOUR_GROQ_API_KEY":
             try:
                 from groq import Groq
                 self._groq = Groq(api_key=groq_api_key)
-                logger.info("Groq fallback enabled (llama-3.3-70b-versatile)")
+                logger.info("Groq fallback enabled (%s)", self._groq_model)
             except Exception as e:
                 logger.warning("Groq init failed — fallback disabled: %s", e)
 
@@ -161,7 +171,7 @@ class JobScorer:
     def _score_with_groq(self, prompt: str, title: str) -> ScoringResult | None:
         try:
             response = self._groq.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model=self._groq_model,
                 messages=[
                     {"role": "system", "content": "You are a job-resume matching assistant. Respond with valid JSON only."},
                     {"role": "user", "content": prompt[:6000]},

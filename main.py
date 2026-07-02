@@ -68,7 +68,12 @@ def run_pipeline(
 
     profile = resume_processor.load_profile()
     semantic_filter = SemanticFilter(resume_processor, threshold=semantic_threshold)
-    scorer = JobScorer(resume_processor, profile, groq_api_key=scoring_cfg.get("groq_api_key", ""))
+    scorer = JobScorer(
+        resume_processor,
+        profile,
+        groq_api_key=scoring_cfg.get("groq_api_key", ""),
+        groq_model=scoring_cfg.get("groq_model", "llama-3.3-70b-versatile"),
+    )
 
     scrapers = [
         *([ JobSpyScraper(config) ] if include_jobspy else []),
