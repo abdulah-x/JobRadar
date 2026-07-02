@@ -68,6 +68,7 @@ class JobStore:
                     pass  # column already exists
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_seen_at ON jobs (seen_at)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_notified ON jobs (notified)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_notified_at ON jobs (notified_at)")
 
     def is_seen(self, job_id: str) -> bool:
         with self._connect() as conn:
