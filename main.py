@@ -129,7 +129,7 @@ def run_pipeline(
     logger.info("After keyword filter: %d jobs", len(keyword_filtered))
 
     filter_cfg = filters
-    seniority_allowed = filter_cfg.get("seniority_allowed", ["entry", "associate", "intern"])
+    seniority_allowed = filter_cfg.get("seniority_allowed", ["entry", "associate", "intern", "unknown"])
 
     qualified: list[JobResult] = []
 
