@@ -27,7 +27,7 @@ class RemotiveScraper(BaseScraper):
                     REMOTIVE_API,
                     params={"category": category, "limit": limit},
                     headers={"User-Agent": get_random_ua()},
-                    timeout=15,
+                    timeout=(10, 15),
                 )
                 resp.raise_for_status()
                 data = resp.json()

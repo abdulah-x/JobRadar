@@ -17,7 +17,7 @@ class RemoteOKScraper(BaseScraper):
         jobs: list[Job] = []
         try:
             random_delay()
-            resp = requests.get(REMOTEOK_URL, headers={"User-Agent": get_random_ua()}, timeout=15)
+            resp = requests.get(REMOTEOK_URL, headers={"User-Agent": get_random_ua()}, timeout=(10, 15))
             resp.raise_for_status()
             data = resp.json()
             # first item is a legal notice dict, skip it

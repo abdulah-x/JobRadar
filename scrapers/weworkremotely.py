@@ -25,7 +25,7 @@ class WeWorkRemotelyScraper(BaseScraper):
             if i > 0:
                 random_delay()
             try:
-                resp = requests.get(feed_url, headers={"User-Agent": get_random_ua()}, timeout=15)
+                resp = requests.get(feed_url, headers={"User-Agent": get_random_ua()}, timeout=(10, 15))
                 resp.raise_for_status()
                 feed = feedparser.parse(resp.content)
                 for entry in feed.entries:

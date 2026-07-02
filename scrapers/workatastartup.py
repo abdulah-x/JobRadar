@@ -31,7 +31,7 @@ _ML_TITLE_KEYWORDS = [
 
 
 def _fetch_inertia(url: str, session: requests.Session) -> dict:
-    r = session.get(url, timeout=15)
+    r = session.get(url, timeout=(10, 15))
     r.raise_for_status()
     m = re.search(r'data-page="({.*?})"', r.text, re.DOTALL)
     if not m:
