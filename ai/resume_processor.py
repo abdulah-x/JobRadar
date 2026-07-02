@@ -1,5 +1,4 @@
 import hashlib
-import json
 import logging
 import re
 import time
@@ -7,6 +6,7 @@ from pathlib import Path
 
 import chromadb
 from google import genai
+from google.genai import types
 
 from .models import ProfileSummary
 
@@ -117,35 +117,38 @@ class ResumeProcessor:
                 logger.warning("Failed to embed chunk %d: %s", i, e)
 
     def _extract_profile(self, resume_text: str) -> ProfileSummary:
-        prompt = f"""Extract a structured profile from the resume below.
-Return ONLY valid JSON matching this schema:
-{{
-  "name": string,
-  "skills": [string],
-  "experience_years": integer,
-  "domains": [string],
-  "seniority": "junior" | "mid" | "senior",
-  "preferred_roles": [string]
-}}
-
-Rules:
-- experience_years: count only paid professional work (internships count as 0.5 each). Round to nearest integer, minimum 0.
-- seniority: "junior" if experience_years < 2, "mid" if 2-5, "senior" if 5+. Students still in university are always "junior".
-- skills: include ALL technical skills mentioned, no limit.
-
-RESUME:
-{resume_text[:3000]}"""
+        prompt = (
+            "Extract a structured profile from the resume below.\n\n"
+            "Rules:\n"
+            "- experience_years: count only paid professional work (internships count as 0.5 each). "
+            "Round to nearest integer, minimum 0.\n"
+            "- seniority: 'junior' if experience_years < 2, 'mid' if 2-5, 'senior' if 5+. "
+            "Students still in university are always 'junior'.\n"
+            "- skills: include ALL technical skills mentioned, no limit.\n\n"
+            f"RESUME:\n{resume_text[:3000]}"
+        )
         for attempt in range(3):
             try:
                 response = self._genai.models.generate_content(
                     model=self._gemini_model,
                     contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema={
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "skills": {"type": "array", "items": {"type": "string"}},
+                                "experience_years": {"type": "integer"},
+                                "domains": {"type": "array", "items": {"type": "string"}},
+                                "seniority": {"type": "string", "enum": ["junior", "mid", "senior"]},
+                                "preferred_roles": {"type": "array", "items": {"type": "string"}},
+                            },
+                            "required": ["name", "skills", "experience_years", "domains", "seniority", "preferred_roles"],
+                        },
+                    ),
                 )
-                raw = response.text.strip()
-                raw = re.sub(r"^```json\s*", "", raw)
-                raw = re.sub(r"\s*```$", "", raw)
-                data = json.loads(raw)
-                return ProfileSummary(**data)
+                return ProfileSummary.model_validate_json(response.text)
             except Exception as e:
                 if attempt < 2:
                     wait = 5 * (2 ** attempt)  # 5s, 10s
