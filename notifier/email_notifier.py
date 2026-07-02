@@ -4,6 +4,8 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 
+import resend
+
 logger = logging.getLogger(__name__)
 
 FONT = "'Times New Roman', Times, serif"
@@ -245,16 +247,13 @@ def _build_html(jobs: list[JobResult], sent_before: int = 0, daily_limit: int = 
 
 class EmailNotifier:
     def __init__(self, api_key: str, sender: str, recipient: str):
-        self.api_key = api_key
         self.sender = sender
         self.recipient = recipient
+        resend.api_key = api_key
 
     def send(self, jobs: list[JobResult], sent_before: int = 0, daily_limit: int = 20) -> bool:
         if not jobs:
             return False
-
-        import resend
-        resend.api_key = self.api_key
 
         sent_after = sent_before + len(jobs)
         subject = f"Job Radar: {len(jobs)} new — {sent_after}/{daily_limit} today"
