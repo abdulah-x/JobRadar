@@ -89,7 +89,10 @@ def run_pipeline(
         except Exception as e:
             logger.warning("Scraper %s crashed: %s", type(scraper).__name__, e)
 
-    logger.info("Total scraped: %d jobs", len(all_jobs))
+    source_counts: dict[str, int] = {}
+    for job in all_jobs:
+        source_counts[job.source] = source_counts.get(job.source, 0) + 1
+    logger.info("Total scraped: %d jobs | by source: %s", len(all_jobs), source_counts)
 
     # dedup across sources by id (same url → same id)
     seen_ids: set[str] = set()
