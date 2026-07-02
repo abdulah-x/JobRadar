@@ -50,6 +50,23 @@ def _score_bg(score: int) -> str:
     return "#2d0a0a"
 
 
+_SOURCE_LABELS: dict[str, str] = {
+    "weworkremotely": "WeWorkRemotely",
+    "remoteok": "RemoteOK",
+    "remoteco": "Remote.co",
+    "remotive": "Remotive",
+    "workatastartup": "Work at a Startup",
+    "indeed": "Indeed",
+    "linkedin": "LinkedIn",
+    "glassdoor": "Glassdoor",
+    "zip_recruiter": "ZipRecruiter",
+}
+
+
+def _source_label(source: str) -> str:
+    return _SOURCE_LABELS.get(source.lower(), source.replace("-", " ").title())
+
+
 _SENIORITY = {
     "entry":     ("#4ade80", "#0d2818"),
     "associate": ("#60a5fa", "#0c1a40"),
@@ -94,7 +111,7 @@ def _job_card(index: int, job: JobResult) -> str:
 
     visa_pill = _pill("Visa required", "#f87171", "#2d0a0a") if job.requires_visa else ""
 
-    src = _html.escape(job.source.replace("-", " ").title())
+    src = _html.escape(_source_label(job.source))
     company = _html.escape(
         job.company if job.company and job.company.lower() not in ("nan", "none", "")
         else "Company undisclosed"
