@@ -98,8 +98,9 @@ def run_pipeline(
 
     logger.info("After cross-source dedup: %d unique jobs", len(unique_jobs))
 
-    # filter out already-seen jobs
-    new_jobs = [j for j in unique_jobs if not store.is_seen(j.id)]
+    # filter out already-seen jobs (single batch query instead of N individual lookups)
+    already_seen = store.seen_ids([j.id for j in unique_jobs])
+    new_jobs = [j for j in unique_jobs if j.id not in already_seen]
     logger.info("New (unseen) jobs: %d", len(new_jobs))
 
     # keyword pre-filter

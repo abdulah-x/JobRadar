@@ -74,6 +74,16 @@ class JobStore:
             row = conn.execute("SELECT 1 FROM jobs WHERE id = ?", (job_id,)).fetchone()
             return row is not None
 
+    def seen_ids(self, job_ids: list[str]) -> set[str]:
+        if not job_ids:
+            return set()
+        placeholders = ",".join("?" * len(job_ids))
+        with self._connect() as conn:
+            rows = conn.execute(
+                f"SELECT id FROM jobs WHERE id IN ({placeholders})", job_ids
+            ).fetchall()
+        return {row["id"] for row in rows}
+
     def save_filtered(self, job: Job, semantic_score: float) -> None:
         self._upsert(job, semantic_score=semantic_score)
 
