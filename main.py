@@ -42,7 +42,10 @@ def run_pipeline(
     include_jobspy: bool = True,
 ) -> None:
     stats = store.stats()
-    logger.info("=== Pipeline run starting === (DB: %d seen, %d notified)", stats["total_seen"], stats["total_notified"])
+    logger.info(
+        "=== Pipeline run starting === (DB: %d seen, %d notified, %.2f MB)",
+        stats["total_seen"], stats["total_notified"], stats["db_size_mb"],
+    )
 
     filters = config.get("filters", {})
     keywords = filters.get("keywords", [])
@@ -225,7 +228,10 @@ def run_pipeline(
         logger.info("No qualifying jobs this run — no email sent")
 
     stats = store.stats()
-    logger.info("DB stats: %d total seen, %d total notified", stats["total_seen"], stats["total_notified"])
+    logger.info(
+        "DB stats: %d total seen, %d total notified, %.2f MB | by source: %s",
+        stats["total_seen"], stats["total_notified"], stats["db_size_mb"], stats["by_source"],
+    )
     logger.info("=== Pipeline run complete ===")
 
 

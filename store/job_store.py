@@ -169,4 +169,7 @@ class JobStore:
         with self._connect() as conn:
             total = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
             notified = conn.execute("SELECT COUNT(*) FROM jobs WHERE notified = 1").fetchone()[0]
-            return {"total_seen": total, "total_notified": notified}
+            rows = conn.execute("SELECT source, COUNT(*) FROM jobs GROUP BY source").fetchall()
+        by_source = {row[0]: row[1] for row in rows}
+        size_mb = round(self.db_path.stat().st_size / (1024 * 1024), 2) if self.db_path.exists() else 0.0
+        return {"total_seen": total, "total_notified": notified, "db_size_mb": size_mb, "by_source": by_source}
